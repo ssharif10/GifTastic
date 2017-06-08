@@ -3,41 +3,14 @@ $(document).ready(function() {
   
 
       // array of artists
-      var topics = ["Beyonce", "Justin Bieber", "Prince", "Maroon 5", "Kelly Rowland", "The Fray", "Adele", "John Legend", "New Edition", "Justin Timberlake", "Destiny's Child", "Usher",];
+      var topics = ["Beyonce", "Justin Bieber", "Prince", "Maroon 5", "Kelly Rowland", "Adele", "John Legend", "New Edition", "Justin Timberlake", "Destiny's Child"];
 
-      // function for capturing the artist name from the data-attribute
-      function displayArtist() {
-        var artists = $(this).attr("data-name");
-        var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + artist + "&api_key=dc6zaTOxFJmzC&limit10";
+      
 
-        // Create AJAX call for the specific artist button being clicked
-        $.ajax({
-          url: queryURL,
-          method: "GET"
-        }).done(function(response) {
-
-          console.log(response);
-
-          // Create a div to hold the artist gif
-          var artistDiv = $("<div class='artist'>");
-          // rating will be stored here
-          var rating = response.Rated;
-
-          // Rating will be displayed in a paragraph element.  This creates the element.
-          var p1 = $("<p>").text("Rating: " + rating);
-
-          // Div for displaying the rating
-          artistDiv.append(p1);
-
-          // Putting the newest artist above the previous artist
-          $("#artist-view").prepend(artistDiv);  
-
-      })
-
-      // Function for displaying artist data
+      // Function for creating buttons from array
       function renderButtons() {
 
-        // Deletes the previous artist's in area where buttons will be located before adding new artists or groups
+        // Deletes the previous artists in area where buttons will be located before adding new artists or groups
         $("#artists-view").empty();
 
         // Looping through the array of artists
@@ -48,25 +21,88 @@ $(document).ready(function() {
           // Adding a class
           artistButton.addClass("artist");
           // Added a data-attribute
-          artistButton.attr("data-name", movies[i]);
+          artistButton.attr("data-name", topics[i]);
           // Provided the initial button text
-          artistButton.text(movies[i]);
+          artistButton.text(topics[i]);
           // Added the button to the HTML
-          $("#artist-view").append(artistButton);
+          $("#artists-view").append(artistButton);
+
         }
       }
 
       $("#add-artist").on("click", function(event) {
         event.preventDefault();
         // This line grabs the input from the textbox
-        var movie = $("#artist-input").val().trim();
+        var artists = $("#artist-input").val().trim();
 
         // Adding artist from the textbox to artist array
-        artists.push(artist);
+        topics.push(artists);
 
         // Calling renderButtons which handles the processing artist array
         renderButtons();
       });
-      // this will clear the input field once button is created
-        var artist = $("#artist-input").val()
-};
+
+      // this step will bring in gifs
+
+      function displayArtistInfo() {
+
+        var category = $(this).attr("data-name");
+        var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + category + "&api_key=dc6zaTOxFJmzC&limit10";
+
+        // Create AJAX call for the specific artist button being clicked
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        }).done(function(response) {
+          var results = response.data;
+         
+          //console.log(response);
+          $("#gifs-here").empty();
+
+            // Looping over every returned results item
+          for (var i = 0; i < results.length; i++) {
+
+            // will only bring in gifs will pg rating
+            if (results[i].rating !== "r" && results[i].rating !== "pg-13") {
+
+            //stores the resulting item's rating
+            var rating = results[i].rating;
+
+            //creates a paragraph tag that will hold the resulting item's rating in text
+            var p = $("<p>").text("Rating: " + rating);
+
+            var gifArea = $("<div class='item'>");
+            
+            // Creating an image tag for gif
+              var gifImage = $("<img>");
+
+            // Giving the image tag and attributes of a property pulled off the
+              // result item
+              gifImage.attr("src", results[i].images.fixed_height.url);
+              //still version of gif
+              gifImage.attr("data-still", results[i].images.fixed_height_still)
+              //animated version of gif
+              gifImage.attr("data-animate", results[i].images.fixed_height_still)
+
+
+              // Appending the paragraph and gifImage we created to the "gifDiv" div we created
+              gifArea.append(p);
+              gifArea.append(gifImage);
+
+            // Prepending the gifArea div to the "#gif-area" div in the HTML
+              $("#gif-area").prepend(gifArea);
+              }
+            }
+          })
+
+        }
+
+        // Adding a click event listener to all elements with a class of "artist"
+      $(document).on("click", ".artist", displayArtistInfo);
+
+      // Calling the renderButtons function to display the intial buttons
+      renderButtons();
+});
+
+
+
