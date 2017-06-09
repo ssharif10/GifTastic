@@ -47,7 +47,7 @@ $(document).ready(function() {
       function displayArtistInfo() {
 
         var category = $(this).attr("data-name");
-        var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + category + "&api_key=dc6zaTOxFJmzC&limit10";
+        var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + category + "&api_key=dc6zaTOxFJmzC&limit10";
 
         // Create AJAX call for the specific artist button being clicked
         $.ajax({
